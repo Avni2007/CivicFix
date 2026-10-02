@@ -17,8 +17,49 @@ import {
   Save,
   Navigation,
   Eye,
-  ShieldCheck
+  ShieldCheck,
+  Landmark,
+  Globe2
 } from 'lucide-react';
+
+const ALL_INDIAN_STATES = [
+  { state: "Delhi", municipality: "Municipal Corporation of Delhi (MCD)", code: "MCD-DL", city: "New Delhi", lat: 28.6139, lng: 77.2090 },
+  { state: "Maharashtra", municipality: "Brihanmumbai Municipal Corporation (BMC)", code: "BMC-MH", city: "Mumbai", lat: 18.9256, lng: 72.8242 },
+  { state: "Karnataka", municipality: "Bruhat Bengaluru Mahanagara Palike (BBMP)", code: "BBMP-KA", city: "Bengaluru", lat: 12.9716, lng: 77.5946 },
+  { state: "Tamil Nadu", municipality: "Greater Chennai Corporation (GCC)", code: "GCC-TN", city: "Chennai", lat: 13.0827, lng: 80.2707 },
+  { state: "Telangana", municipality: "Greater Hyderabad Municipal Corporation (GHMC)", code: "GHMC-TG", city: "Hyderabad", lat: 17.3850, lng: 78.4867 },
+  { state: "West Bengal", municipality: "Kolkata Municipal Corporation (KMC)", code: "KMC-WB", city: "Kolkata", lat: 22.5726, lng: 88.3639 },
+  { state: "Gujarat", municipality: "Amdavad Municipal Corporation (AMC)", code: "AMC-GJ", city: "Ahmedabad", lat: 23.0225, lng: 72.5714 },
+  { state: "Uttar Pradesh", municipality: "Lucknow Municipal Corporation (LMC)", code: "LMC-UP", city: "Lucknow", lat: 26.8467, lng: 80.9462 },
+  { state: "Rajasthan", municipality: "Jaipur Municipal Corporation Greater (JMC)", code: "JMC-RJ", city: "Jaipur", lat: 26.9124, lng: 75.7873 },
+  { state: "Punjab", municipality: "Municipal Corporation Ludhiana (MCL)", code: "MCL-PB", city: "Ludhiana", lat: 30.9010, lng: 75.8573 },
+  { state: "Haryana", municipality: "Municipal Corporation of Gurugram (MCG)", code: "MCG-HR", city: "Gurugram", lat: 28.4595, lng: 77.0266 },
+  { state: "Bihar", municipality: "Patna Municipal Corporation (PMC)", code: "PMC-BR", city: "Patna", lat: 25.5941, lng: 85.1376 },
+  { state: "Madhya Pradesh", municipality: "Bhopal Municipal Corporation (BMC)", code: "BMC-MP", city: "Bhopal", lat: 23.2599, lng: 77.4126 },
+  { state: "Kerala", municipality: "Thiruvananthapuram Municipal Corporation (TMC)", code: "TMC-KL", city: "Thiruvananthapuram", lat: 8.5241, lng: 76.9366 },
+  { state: "Andhra Pradesh", municipality: "Greater Visakhapatnam Municipal Corporation (GVMC)", code: "GVMC-AP", city: "Visakhapatnam", lat: 17.6868, lng: 83.2185 },
+  { state: "Odisha", municipality: "Bhubaneswar Municipal Corporation (BMC)", code: "BMC-OD", city: "Bhubaneswar", lat: 20.2961, lng: 85.8245 },
+  { state: "Assam", municipality: "Guwahati Municipal Corporation (GMC)", code: "GMC-AS", city: "Guwahati", lat: 26.1445, lng: 91.7362 },
+  { state: "Chhattisgarh", municipality: "Raipur Municipal Corporation (RMC)", code: "RMC-CG", city: "Raipur", lat: 21.2514, lng: 81.6296 },
+  { state: "Jharkhand", municipality: "Ranchi Municipal Corporation (RMC)", code: "RMC-JH", city: "Ranchi", lat: 23.3441, lng: 85.3096 },
+  { state: "Uttarakhand", municipality: "Dehradun Municipal Corporation (DMC)", code: "DMC-UK", city: "Dehradun", lat: 30.3165, lng: 78.0322 },
+  { state: "Himachal Pradesh", municipality: "Shimla Municipal Corporation (SMC)", code: "SMC-HP", city: "Shimla", lat: 31.1048, lng: 77.1734 },
+  { state: "Goa", municipality: "Corporation of the City of Panaji (CCP)", code: "CCP-GA", city: "Panaji", lat: 15.4909, lng: 73.8278 },
+  { state: "Tripura", municipality: "Agartala Municipal Corporation (AMC)", code: "AMC-TR", city: "Agartala", lat: 23.8315, lng: 91.2868 },
+  { state: "Meghalaya", municipality: "Shillong Municipal Board (SMB)", code: "SMB-ML", city: "Shillong", lat: 25.5788, lng: 91.8933 },
+  { state: "Manipur", municipality: "Imphal Municipal Corporation (IMC)", code: "IMC-MN", city: "Imphal", lat: 24.8170, lng: 93.9368 },
+  { state: "Nagaland", municipality: "Kohima Municipal Council (KMC)", code: "KMC-NL", city: "Kohima", lat: 25.6751, lng: 94.1086 },
+  { state: "Mizoram", municipality: "Aizawl Municipal Corporation (AMC)", code: "AMC-MZ", city: "Aizawl", lat: 23.7271, lng: 92.7176 },
+  { state: "Arunachal Pradesh", municipality: "Itanagar Municipal Corporation (IMC)", code: "IMC-AR", city: "Itanagar", lat: 27.0844, lng: 93.6053 },
+  { state: "Sikkim", municipality: "Gangtok Municipal Corporation (GMC)", code: "GMC-SK", city: "Gangtok", lat: 27.3389, lng: 88.6065 },
+  { state: "Chandigarh", municipality: "Municipal Corporation Chandigarh (MCC)", code: "MCC-CH", city: "Chandigarh", lat: 30.7333, lng: 76.7794 },
+  { state: "Jammu and Kashmir", municipality: "Srinagar Municipal Corporation (SMC)", code: "SMC-JK", city: "Srinagar", lat: 34.0837, lng: 74.7973 },
+  { state: "Ladakh", municipality: "Municipal Committee Leh (MCL)", code: "MCL-LA", city: "Leh", lat: 34.1526, lng: 77.5771 },
+  { state: "Puducherry", municipality: "Puducherry Municipality (PM)", code: "PM-PY", city: "Puducherry", lat: 11.9416, lng: 79.8083 },
+  { state: "Andaman and Nicobar Islands", municipality: "Port Blair Municipal Council (PBMC)", code: "PBMC-AN", city: "Port Blair", lat: 11.6234, lng: 92.7265 },
+  { state: "Dadra and Nagar Haveli and Daman and Diu", municipality: "Daman Municipal Council (DMC)", code: "DMC-DD", city: "Daman", lat: 20.3974, lng: 72.8328 },
+  { state: "Lakshadweep", municipality: "Kavaratti Dweep Panchayat (KVDP)", code: "KVDP-LD", city: "Kavaratti", lat: 10.5669, lng: 72.6420 }
+];
 
 export default function ReportIssuePage() {
   const navigate = useNavigate();
@@ -39,7 +80,7 @@ export default function ReportIssuePage() {
   // Form Validation Errors
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Form State
+  // Form State with Pan-India default
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -47,11 +88,14 @@ export default function ReportIssuePage() {
     imageUrl: '',
     file: null,
     previewUrl: null,
-    address: 'University Ave & 4th Street',
-    lat: 28.6139,
-    lng: 77.2090,
-    city: 'Metro City',
-    area: 'Downtown'
+    address: 'Ring Road near AIIMS Flyover',
+    lat: 28.5672,
+    lng: 77.2100,
+    city: 'New Delhi',
+    state: 'Delhi',
+    municipalityCode: 'MCD-DL',
+    municipalityName: 'Municipal Corporation of Delhi (MCD)',
+    area: 'South Delhi'
   });
 
   // AI Pothole Detection & Authenticity State
@@ -73,8 +117,38 @@ export default function ReportIssuePage() {
         lng: d.location?.lng || prev.lng
       }));
       setSaveStatus('Draft loaded');
+    } else if (locationState.state && locationState.state.stateName) {
+      const s = locationState.state;
+      setFormData(prev => ({
+        ...prev,
+        state: s.stateName,
+        city: s.city || prev.city,
+        municipalityCode: s.municipalityCode || prev.municipalityCode,
+        municipalityName: s.municipalityName || prev.municipalityName,
+        lat: s.lat || prev.lat,
+        lng: s.lng || prev.lng,
+        address: s.city ? `${s.city} Central, ${s.stateName}` : prev.address
+      }));
     }
   }, [locationState]);
+
+  const handleStateSelect = (selectedStateName) => {
+    const matched = ALL_INDIAN_STATES.find(s => s.state === selectedStateName);
+    if (matched) {
+      const updated = {
+        ...formData,
+        state: matched.state,
+        city: matched.city,
+        municipalityCode: matched.code,
+        municipalityName: matched.municipality,
+        lat: matched.lat,
+        lng: matched.lng,
+        address: `${matched.city} Central, ${matched.state}`
+      };
+      setFormData(updated);
+      triggerAutoSave(updated);
+    }
+  };
 
   // Real-time Auto Save to Backend & LocalStorage
   const triggerAutoSave = (updatedData) => {
@@ -232,8 +306,10 @@ export default function ReportIssuePage() {
       formPayload.append('address', formData.address);
       formPayload.append('lat', formData.lat);
       formPayload.append('lng', formData.lng);
-      formPayload.append('city', formData.city);
-      formPayload.append('area', formData.area);
+      formPayload.append('city', formData.city || 'New Delhi');
+      formPayload.append('state', formData.state || 'Delhi');
+      formPayload.append('municipalityCode', formData.municipalityCode || 'MCD-DL');
+      formPayload.append('area', formData.area || '');
 
       if (formData.file) {
         formPayload.append('images', formData.file);
@@ -484,9 +560,14 @@ export default function ReportIssuePage() {
       {currentStep === 2 && (
         <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-lg font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-sky-500" /> Step 2 — Pin Location on Leaflet Map
-            </h2>
+            <div>
+              <h2 className="text-lg font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-sky-500" /> Step 2 — Pin Location on Leaflet Map
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Active in all 36 States &amp; Union Territories across India
+              </p>
+            </div>
             <button
               type="button"
               onClick={handleUseCurrentLocation}
@@ -494,6 +575,46 @@ export default function ReportIssuePage() {
             >
               <Navigation className="w-4 h-4" /> Use My Current Location
             </button>
+          </div>
+
+          {/* Pan-India State & Municipal Jurisdiction Selector */}
+          <div className="p-4 rounded-2xl bg-sky-500/5 border border-sky-500/20 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Globe2 className="w-4 h-4 text-sky-500" /> State / UT Municipal Jurisdiction:
+              </label>
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" /> 36 States &amp; UTs Integrated
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <select
+                  value={formData.state}
+                  onChange={(e) => handleStateSelect(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500 outline-none"
+                >
+                  {ALL_INDIAN_STATES.map((s) => (
+                    <option key={s.state} value={s.state}>
+                      {s.state} — {s.city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700">
+                <Building2 className="w-4 h-4 text-sky-500 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100 truncate">
+                    {formData.municipalityName}
+                  </p>
+                  <p className="text-[10px] font-mono text-slate-500">
+                    LGD Code: {formData.municipalityCode}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <MapPicker
@@ -653,9 +774,18 @@ export default function ReportIssuePage() {
             </div>
 
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400">Location</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400">Jurisdiction &amp; State</span>
+              <p className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 mt-0.5">
+                <Landmark className="w-3.5 h-3.5 text-emerald-500 inline shrink-0" />
+                <span>{formData.municipalityName} ({formData.state})</span>
+                <span className="text-[10px] font-mono text-slate-500">[{formData.municipalityCode}]</span>
+              </p>
+            </div>
+
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400">Location Address</span>
               <p className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-sky-500 inline" /> {formData.address}
+                <MapPin className="w-3.5 h-3.5 text-sky-500 inline shrink-0" /> {formData.address}
               </p>
             </div>
           </div>

@@ -209,8 +209,62 @@ Then open `http://localhost:5000`.
 
 A Dockerfile is included for platforms that support Docker. Set `MONGODB_URI`, `JWT_SECRET`, `CLIENT_URL`, and the SMTP variables as platform environment variables.
 
+---
+
+## 🇮🇳 Pan-India Nationwide Governance (All 36 States & UTs)
+
+CivicFix includes complete, out-of-the-box governance data for all **28 States and 8 Union Territories** across India:
+
+- **Official LGD Municipal Codes**: E.g., `MCD-DL` (Delhi), `BMC-MH` (Mumbai), `BBMP-KA` (Bengaluru), `GCC-TN` (Chennai), `GHMC-TG` (Hyderabad), `KMC-WB` (Kolkata), `AMC-GJ` (Ahmedabad), `LMC-UP` (Lucknow), `JMC-RJ` (Jaipur), `PMC-BR` (Patna), and all remaining 26 states/UTs.
+- **Official Government-Verified Accounts**: 73+ verified state municipal officers with HRMS Employee IDs, designations, official state portals, and 24/7 citizen helplines.
+- **Statewide Leaflet Map Navigation**: Interactive Pan-India map (`/map`) centered at `[22.9734, 78.6569]` with one-click state zoom and filtering.
+- **State-Level AI Routing**: Citizens reporting issues in any state automatically route tickets to the designated department officer for that state.
+- **Public Municipal Directory**: Public dashboard (`/public-dashboard`) and Official Staff Portal (`/municipal-login`) for citizen transparency and official staff login.
+
+### Seeding Official Staff & State Municipalities:
+```bash
+cd server
+npm run seed:states           # Seeds all 36 States & UTs with official officers
+npm run seed:official-staff   # Provisions all 73 verified government staff
+```
+
+---
+
+## ☁️ Pan-India Cloud Launch Playbook
+
+To launch CivicFix publicly for all states in India:
+
+### 1. Database (MongoDB Atlas)
+1. Create a free/production cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Create a database user and whitelist `0.0.0.0/0` (or your cloud hosting IPs).
+3. Copy the connection string: `mongodb+srv://<user>:<password>@cluster0.mongodb.net/civicfix?retryWrites=true&w=majority`
+
+### 2. Environment Variables (.env)
+Set the following on Render, Railway, DigitalOcean, or AWS:
+```env
+PORT=5000
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/civicfix?retryWrites=true&w=majority
+JWT_SECRET=your_super_strong_jwt_secret_key_civicfix_india
+CLIENT_URL=https://your-civicfix-domain.com
+
+# Real Citizen Email OTP Verification (Gmail / AWS SES / SendGrid)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=civicfix.india@gmail.com
+SMTP_PASS=your_16_character_app_password
+SMTP_FROM="CivicFix India" <civicfix.india@gmail.com>
+```
+
+### 3. Deploy in 1-Click (Docker or Single Server)
+```bash
+# Build frontend and start Express production server
+cd client && npm install && npm run build && cd ../server && npm install && npm run seed:states && npm start
+```
+
 ### Important security notes
 
 - `server/.env` is intentionally not included in the repository/ZIP. Never commit SMTP passwords, MongoDB credentials, or AI API keys.
 - Public registration can only create `citizen` accounts. Authority/admin accounts remain provisioned by the municipal seed/provisioning scripts.
 - OTP verification is required before a citizen receives a JWT.
+

@@ -29,7 +29,7 @@ function canActOnComplaint(user, complaint) {
 
 exports.createComplaint = async (req, res, next) => {
   try {
-    const { title, description, category, address, lat, lng, city, area } = req.body;
+    const { title, description, category, address, lat, lng, city, area, state, municipalityCode } = req.body;
 
     if (!title || !description || !address || lat === undefined || lng === undefined) {
       return res.status(400).json({ 
@@ -63,6 +63,17 @@ exports.createComplaint = async (req, res, next) => {
       images = ['https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80'];
     }
 
+    // Auto-route to official verified state officer if available
+    let assignedOfficerId = null;
+    if (state) {
+      const stateOfficer = await User.findOne({
+        state: new RegExp(`^${state.trim()}$`, 'i'),
+        department: aiAnalysisResult.suggestedDepartment,
+        role: 'authority'
+      });
+      if (stateOfficer) assignedOfficerId = stateOfficer._id;
+    }
+
     const complaint = await Complaint.create({
       complaintId,
       title,
@@ -76,10 +87,13 @@ exports.createComplaint = async (req, res, next) => {
         lat: latitude,
         lng: longitude,
         city: city || 'Metro City',
-        area: area || 'Downtown'
+        area: area || 'Downtown',
+        state: state || 'National',
+        municipalityCode: municipalityCode || ''
       },
       reportedBy: req.user._id,
       assignedDepartment: aiAnalysisResult.suggestedDepartment,
+      assignedOfficer: assignedOfficerId,
       aiAnalysis: {
         confidence: aiAnalysisResult.confidence,
         suggestedCategory: aiAnalysisResult.category,
@@ -127,7 +141,7 @@ exports.createComplaint = async (req, res, next) => {
 
 exports.getComplaints = async (req, res, next) => {
   try {
-    const { category, status, priority, department, search, myComplaints, assignedToMe, area, limit, sort } = req.query;
+    const { category, status, priority, department, search, myComplaints, assignedToMe, area, city, state, limit, sort } = req.query;
     
     let query = {};
 
@@ -136,6 +150,14 @@ exports.getComplaints = async (req, res, next) => {
     if (priority) query.priority = priority;
     if (department) query.assignedDepartment = department;
     if (area) query['location.area'] = new RegExp(area, 'i');
+    if (city) query['location.city'] = new RegExp(city, 'i');
+    if (state) {
+      query.$or = [
+        { 'location.state': new RegExp(`^${state.trim()}$`, 'i') },
+        { 'location.address': new RegExp(state, 'i') },
+        { 'location.city': new RegExp(state, 'i') }
+      ];
+    }
 
     if (myComplaints === 'true' && req.user) {
       query.reportedBy = req.user._id;

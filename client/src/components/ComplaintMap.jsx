@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
@@ -23,13 +23,26 @@ const createColorMarker = (priority) => {
   });
 };
 
-export default function ComplaintMap({ complaints = [], height = "500px" }) {
+function MapViewController({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center && center[0] && center[1]) {
+      map.flyTo(center, zoom || 6, { duration: 1.2 });
+    }
+  }, [center, zoom, map]);
+  return null;
+}
+
+export default function ComplaintMap({ complaints = [], height = "500px", center, zoom }) {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('markers'); // 'markers' | 'heatmap'
 
-  const defaultCenter = complaints.length > 0 && complaints[0].location?.lat
+  // Default to Pan-India center coordinates if not specified
+  const mapCenter = center || (complaints.length === 1 && complaints[0].location?.lat
     ? [complaints[0].location.lat, complaints[0].location.lng]
-    : [28.6139, 77.2090];
+    : [22.9734, 78.6569]);
+  
+  const mapZoom = zoom || (complaints.length === 1 ? 13 : 5);
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl" style={{ height }}>
@@ -54,7 +67,9 @@ export default function ComplaintMap({ complaints = [], height = "500px" }) {
         </button>
       </div>
 
-      <MapContainer center={defaultCenter} zoom={12} scrollWheelZoom={true} style={{ width: '100%', height: '100%' }}>
+      <MapContainer center={mapCenter} zoom={mapZoom} scrollWheelZoom={true} style={{ width: '100%', height: '100%' }}>
+        <MapViewController center={mapCenter} zoom={mapZoom} />
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -86,6 +101,9 @@ export default function ComplaintMap({ complaints = [], height = "500px" }) {
                     <StatusBadge status={c.status} />
                     <span className="text-[10px] text-slate-500">{c.category}</span>
                   </div>
+                  {c.location?.city && (
+                    <p className="text-[10px] text-slate-400 truncate">{c.location.city}, {c.location.state || 'India'}</p>
+                  )}
                   <button
                     onClick={() => navigate(`/complaints/${c._id}`)}
                     className="w-full mt-1 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-1 shadow"

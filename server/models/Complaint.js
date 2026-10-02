@@ -26,7 +26,9 @@ const complaintSchema = new mongoose.Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
     city: { type: String, default: 'Metro City' },
-    area: { type: String, default: 'Downtown' }
+    area: { type: String, default: 'Downtown' },
+    state: { type: String, default: 'National' },
+    municipalityCode: { type: String, default: '' }
   },
   reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   assignedDepartment: { 
