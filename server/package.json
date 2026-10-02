@@ -1,0 +1,31 @@
+{
+  "name": "civicfix-server",
+  "version": "1.0.0",
+  "description": "CivicFix Backend REST API & AI Service Engine",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node seed/seedData.js",
+    "seed:municipal": "node seed/seedData.js",
+    "seed:official-staff": "node seed/provisionMunicipalUser.js --allVerified",
+    "seed:states": "node seed/seedIndiaStatesDataset.js",
+    "provision:municipal": "node seed/provisionMunicipalUser.js",
+    "setup:image-ai": "node image_detector/setup_ai.js",
+    "test": "node tests/runTests.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^10.0.3"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^9.2.0"
+  }
+}
