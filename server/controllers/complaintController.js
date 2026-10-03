@@ -5,6 +5,12 @@ const Feedback = require('../models/Feedback');
 const User = require('../models/User');
 const aiService = require('../services/aiService');
 const { createNotification } = require('../services/notificationService');
+const {
+  emitComplaintCreated,
+  emitComplaintUpdated,
+  emitComplaintVerified,
+  emitCommentAdded
+} = require('../services/socketService');
 
 // Helper to generate unique complaint ID (CIV-2026-XXXXXX)
 async function generateUniqueComplaintId() {
@@ -128,6 +134,13 @@ exports.createComplaint = async (req, res, next) => {
 
     // Increment user reported count
     await User.findByIdAndUpdate(req.user._id, { $inc: { 'stats.reportedCount': 1 } });
+
+    // Broadcast real-time complaint creation across pan-india and state feeds
+    try {
+      emitComplaintCreated(complaint);
+    } catch (socketErr) {
+      console.warn('[Socket] Failed to broadcast complaint creation:', socketErr.message);
+    }
 
     res.status(201).json({
       success: true,
@@ -279,9 +292,19 @@ exports.updateComplaintStatus = async (req, res, next) => {
       type: status === 'RESOLVED' ? 'RESOLVED' : 'STATUS_CHANGE'
     });
 
+    const populatedComplaint = await Complaint.findById(complaint._id)
+      .populate('reportedBy', 'name email role')
+      .populate('assignedOfficer', 'name email department');
+
+    try {
+      emitComplaintUpdated(populatedComplaint || complaint);
+    } catch (socketErr) {
+      console.warn('[Socket] Failed to broadcast complaint update:', socketErr.message);
+    }
+
     res.status(200).json({
       success: true,
-      complaint
+      complaint: populatedComplaint || complaint
     });
   } catch (error) {
     next(error);
@@ -320,9 +343,19 @@ exports.uploadProofOfWork = async (req, res, next) => {
       proofImages
     });
 
+    const populatedProofComplaint = await Complaint.findById(complaint._id)
+      .populate('reportedBy', 'name email role')
+      .populate('assignedOfficer', 'name email department');
+
+    try {
+      emitComplaintUpdated(populatedProofComplaint || complaint);
+    } catch (socketErr) {
+      console.warn('[Socket] Failed to broadcast proof upload:', socketErr.message);
+    }
+
     res.status(200).json({
       success: true,
-      complaint
+      complaint: populatedProofComplaint || complaint
     });
   } catch (error) {
     next(error);
@@ -387,9 +420,19 @@ exports.verifyResolution = async (req, res, next) => {
         : `Citizen reopened complaint. Feedback: ${feedbackComment}`
     });
 
+    const populatedVerified = await Complaint.findById(complaint._id)
+      .populate('reportedBy', 'name email role')
+      .populate('assignedOfficer', 'name email department');
+
+    try {
+      emitComplaintVerified(populatedVerified || complaint);
+    } catch (socketErr) {
+      console.warn('[Socket] Failed to broadcast verification:', socketErr.message);
+    }
+
     res.status(200).json({
       success: true,
-      complaint
+      complaint: populatedVerified || complaint
     });
   } catch (error) {
     next(error);
@@ -411,6 +454,12 @@ exports.addComment = async (req, res, next) => {
     });
 
     const populatedComment = await Comment.findById(comment._id).populate('user', 'name role department avatar');
+
+    try {
+      emitCommentAdded(complaint._id, populatedComment);
+    } catch (socketErr) {
+      console.warn('[Socket] Failed to broadcast comment:', socketErr.message);
+    }
 
     res.status(201).json({
       success: true,

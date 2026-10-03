@@ -16,7 +16,8 @@ import {
   Sparkles,
   LayoutDashboard,
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  Landmark
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -266,14 +267,21 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Link
-                to="/login"
-                className="px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                to="/municipal-login"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 rounded-xl transition-all shadow-sm"
+                title="Official Government-Verified Municipal Authority Portal"
               >
-                Log In
+                <Landmark className="w-3.5 h-3.5" /> Staff Portal
+              </Link>
+              <Link
+                to="/login"
+                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              >
+                Sign In
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 rounded-xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:scale-105"
+                className="px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 rounded-xl shadow-md shadow-sky-500/20 transition-all duration-200 hover:scale-105"
               >
                 Register
               </Link>

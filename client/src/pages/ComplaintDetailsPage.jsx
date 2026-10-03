@@ -7,6 +7,7 @@ import PriorityBadge from '../components/PriorityBadge';
 import Timeline from '../components/Timeline';
 import ResolutionModal from '../components/ResolutionModal';
 import VerificationModal from '../components/VerificationModal';
+import { subscribeToComplaintDetails } from '../services/socket';
 import { 
   MapPin, 
   Building2, 
@@ -42,7 +43,39 @@ export default function ComplaintDetailsPage() {
 
   useEffect(() => {
     fetchComplaintDetails();
+
+    // Subscribe to live WebSocket updates for this specific complaint
+    const unsubscribe = subscribeToComplaintDetails(id, {
+      onUpdated: (updatedComplaint) => {
+        setComplaint(prev => ({ ...prev, ...updatedComplaint }));
+        fetchComplaintHistoryOnly();
+      },
+      onCommentAdded: (newCommentObj) => {
+        setComments(prev => {
+          if (prev.some(c => c._id === newCommentObj._id)) return prev;
+          return [...prev, newCommentObj];
+        });
+      },
+      onVerified: (verifiedComplaint) => {
+        setComplaint(prev => ({ ...prev, ...verifiedComplaint }));
+        fetchComplaintHistoryOnly();
+      }
+    });
+
+    return () => unsubscribe();
   }, [id]);
+
+  const fetchComplaintHistoryOnly = async () => {
+    try {
+      const res = await complaintAPI.getById(id);
+      if (res.data.success) {
+        setHistory(res.data.history || []);
+        if (res.data.feedback) setFeedback(res.data.feedback);
+      }
+    } catch (e) {
+      // Ignore background refresh error
+    }
+  };
 
   const fetchComplaintDetails = async () => {
     setLoading(true);
